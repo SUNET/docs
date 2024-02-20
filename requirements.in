@@ -1,0 +1,10 @@
+uvicorn[standard]
+fastapi
+motor
+GitPython
+cryptography
+requests
+openapi_schema_validator
+pkgutil-resolve-name
+sphinx
+myst-parser

@@ -1,0 +1,86 @@
+version: "3.3"
+# Require docker-compose version 1.29
+# version: "3.9"
+services:
+  web:
+    image: ghcr.io/docat-org/docat
+    #volumes:
+    #  - ./data/mongodb:/data
+    ports:
+      - "8000:80"
+
+  doc_generator:
+    build:
+      context: .
+      dockerfile: containers/doc_generator/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - "mongodb"
+    restart: always
+    # read_only: true
+    # cap_drop: [ALL]
+    # security_opt:
+    #   - no-new-privileges:true
+    # Require docker-compose version 1.29 and version: "3.3" in this file at the top
+    # mem_limit: "512m"
+    # mem_reservation: "128m"
+    # cpus: "1.75"
+    # user: 1000:1000
+    volumes:
+      - ./data/pages:/app/pages
+    tmpfs:
+      - /dev/shm:ro,noexec,nosuid,nodev
+    environment:
+     - POSTGRES_HOST="mongodb"
+    #  - POSTGRES_USER=${POSTGRES_USER}
+    #  - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    #  - POSTGRES_PORT=${POSTGRES_PORT}
+    #  - POSTGRES_DATABASE=${POSTGRES_DATABASE}
+    #  - POSTGRES_TIMEOUT=${POSTGRES_TIMEOUT}
+
+  mongodb:
+    image: mongo:7.0.5-jammy@sha256:d593866fcb8872eb3021c55cb5739d12ce63efdde9f57a2c650118f0052cc5f3
+    restart: always
+    # read_only: true
+    # cap_drop: [ALL]
+    # security_opt:
+    #   - no-new-privileges:true
+    # Require docker-compose version 1.299 and version: "3.3" in this file at the top
+    # mem_limit: "1g"
+    # mem_reservation: "128m"
+    # cpus: "1.75"
+    volumes:
+      - ./data/mongodb:/data
+     # FIXME mongodb security
+#    environment:
+#      - POSTGRES_DB=${POSTGRES_DATABASE}
+#      - POSTGRES_USER=${POSTGRES_USER}
+#      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+
+  # test1:
+  #   build:
+  #     context: .
+  #     dockerfile: containers/test/Dockerfile
+  #   depends_on:
+  #     - "ca"
+  #   restart: "no"
+  #   # read_only: true
+  #   cap_drop: [ALL]
+  #   security_opt:
+  #     - no-new-privileges:true
+  #   # Require docker-compose version 1.29 and version: "3.3" in this file at the top
+  #   # mem_limit: "256m"
+  #   # mem_reservation: "128m"
+  #   # cpus: "1.0"
+  #   tmpfs:
+  #     - /dev/shm:ro,noexec,nosuid,nodev
+  #   environment:
+  #     - CA_URL=${CA_URL}
+  #     - ACME_ROOT=${ACME_ROOT}
+  #     - PKCS11_SIGN_API_TOKEN=${PKCS11_SIGN_API_TOKEN}
+  #   entrypoint: ['true']
+
+volumes:
+  pages:
+    driver: local
