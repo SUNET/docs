@@ -49,7 +49,7 @@ RUN find / -xdev -perm /6000 -type f -exec chmod a-s {} \; || true
 # RUN usermod -a -G softhsm pkcs11_ca
 
 # Copy files
-COPY ./src /app/src
+COPY ./doc_generator /app/doc_generator
 # COPY ./tests /app/tests
 # COPY ./data/trusted_keys /app/trusted_keys
 # COPY ./containers/healthcheck.sh /app/healthcheck.sh
@@ -75,5 +75,5 @@ COPY ./containers/logging.json /app/logging.json
 
 # CMD sh -c '. .venv/bin/activate && uvicorn src.pkcs11_ca_service.main:app --ssl-keyfile tls_key.key --ssl-certfile tls_certificate.pem --ssl-version 2 --log-config ./logging.json --host 0.0.0.0 --port 443 --workers 1 --header server:pkcs11_ca'
 
-CMD sh -c '. .venv/bin/activate && uvicorn src.doc_generator.main:app --ssl-keyfile tls_key.key --ssl-certfile tls_certificate.pem --ssl-version 2 --log-config ./logging.json --host 0.0.0.0 --port 443 --workers 1 --header server:pkcs11_ca'
-CMD sh -c '. .venv/bin/activate && uvicorn src.doc_generator.main:app --log-config ./logging.json --host 0.0.0.0 --port 8080 --workers 1'
+CMD sh -c '. .venv/bin/activate && uvicorn doc_generator.main:app --ssl-keyfile tls_key.key --ssl-certfile tls_certificate.pem --ssl-version 2 --log-config ./logging.json --host 0.0.0.0 --port 443 --workers 1 --header server:pkcs11_ca'
+CMD sh -c '. .venv/bin/activate && uvicorn doc_generator.main:app --log-config ./logging.json --host 0.0.0.0 --port 8080 --workers 1'

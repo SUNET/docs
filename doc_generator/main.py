@@ -1,23 +1,19 @@
 """Main module, FastAPI runs from here"""
 import asyncio
 import base64
-from os import sync
-
 from secrets import token_bytes
 from typing import List
 
-
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
-
 from git import Repo
 
-from .base import detect_language, AbstractGenerator
+from .base import AbstractGenerator
 from .startup import generators
 
-
 doc_generators: List[AbstractGenerator] = generators()
-print(doc_generators, flush=True)
+print()
+print(f"Loaded {len(doc_generators)} generators", flush=True)
 
 
 # Create fastapi app
@@ -32,19 +28,18 @@ def clone_url(url: str) -> str:
 
 @app.post("/test1")
 async def post_generator() -> JSONResponse:
-
     print(f"Received new generate request", flush=True)
-
 
     url = "https://github.com/SUNET/python_x509_pkcs11.git"
     loop = asyncio.get_running_loop()
     folder_name = await loop.run_in_executor(None, clone_url, url)
+    language = None
 
-    language = await detect_language(folder_name)
+    # language = await detect_language(folder_name)
 
     # Try to find a compatable generator and generate with it
     for generator in doc_generators:
-        if await generator.compatable(language, folder_name):
+        if await generator.compatable(folder_name, language):
             print(f"Using generator {generator.name()}", flush=True)
             generated_docs_folder = await generator.generate(folder_name)
             break
