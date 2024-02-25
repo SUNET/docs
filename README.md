@@ -18,12 +18,13 @@ http://localhost:8000
 # To add support to generate docs for a new type of project
 
 * Create a new python file starting with 'generator_' in 'doc_generator/generators' folder.
-* In the file create a class called 'Generator' which implement our 'AbstractGenerator'. See example below
-* Your generator will automatically load and be and used.
+* In the file create a class called 'Generator' which implement our 'AbstractGenerator'. See example below.
+* Your generator will automatically load.
 * The idea is a loop over all generators and use one which is compatable with the project we are trying to generate docs for.
 * See example code below or look at existing generators.
 
 ```python
+import os
 from doc_generator.base import AbstractGenerator, CodeLanguage
 
 class Generator(AbstractGenerator):
