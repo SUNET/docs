@@ -22,7 +22,7 @@ app = FastAPI()
 
 def clone_url(url: str) -> str:
     folder_name = base64.b64encode((token_bytes(16))).hex()
-    repo = Repo.clone_from(url, f"/app/pages/generating/{folder_name}")
+    Repo.clone_from(url, f"/app/pages/generating/{folder_name}")
     return folder_name
 
 

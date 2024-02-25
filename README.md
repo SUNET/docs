@@ -17,9 +17,9 @@ http://localhost:8000
 
 # To add support to generate docs for a new type of project
 
-* Create a new python file in 'doc_generator/generators' folder.
-* Create a class called 'Generator' which implement 'AbstractGenerator'.
-* Your generator with automatically loaded and used.
+* Create a new python file starting with 'generator_' in 'doc_generator/generators' folder.
+* In the file create a class called 'Generator' which implement our 'AbstractGenerator'. See example below
+* Your generator will automatically load and be and used.
 * The idea is a loop over all generators and use one which is compatable with the project we are trying to generate docs for.
 * See example code below or look at existing generators.
 
@@ -46,7 +46,10 @@ class Generator(AbstractGenerator):
 
         return True
 
-    # Your code to generate sphinx docs for a project with your layout
     async def generate(self, folder_name: str) -> str:
-        """Your code here, return folder path to the sphinx generated html folder"""
+        """
+        Your code to generate sphinx docs for a project with your layout here
+        Path to your git cloned project are /app/pages/generating/{folder_name}
+        return the folder path to the sphinx generated html folder, usually where the generated index.html file is
+        """
 ```
