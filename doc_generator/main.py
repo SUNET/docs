@@ -1,9 +1,11 @@
 """Main module, FastAPI runs from here"""
 
 from typing import List
+import json
 
 from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.responses import JSONResponse
+
 
 from .base import AbstractGenerator
 from .lib import preprocessing
@@ -21,9 +23,10 @@ app = FastAPI()
 async def post_generator(req: Request) -> JSONResponse:
     print(f"Received new generate request", flush=True)
     post_data = await req.json()  # Check for valid data
-
-    import json
     print(json.dumps(post_data))
+
+    if "clone_url" not in post_data:
+        return JSONResponse(status_code=200, content=f"Nothing to do, no 'clone_url' in post data")
 
     # Preprocess (clone down, detect language) the project
     folder_name, language = await preprocessing(post_data)
