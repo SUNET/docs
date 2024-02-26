@@ -35,14 +35,14 @@ class Generator(AbstractGenerator):
     async def compatable(self, folder_name: str, language: CodeLanguage | None) -> bool:
         """
         Code to check if the repo is compatable with your doc generator
-        Path to your git cloned project are /app/pages/generating/{folder_name}
+        Path to your git cloned project are {folder_name}
         """
 
         if language is not None and self.language() != language:
             return False
 
         # Assume we have some docs to generate if 'docs' folder exists
-        if not os.path.isdir(f"/app/pages/generating/{folder_name}/docs"):
+        if not os.path.isdir(f"{folder_name}/docs"):
             return False
 
         return True
@@ -50,7 +50,7 @@ class Generator(AbstractGenerator):
     async def generate(self, folder_name: str) -> str:
         """
         Your code to generate sphinx docs for a project with your layout here
-        Path to your git cloned project are /app/pages/generating/{folder_name}
+        Path to your git cloned project are {folder_name}
         return the folder path to the sphinx generated html folder, usually where the generated index.html file is
         """
 ```

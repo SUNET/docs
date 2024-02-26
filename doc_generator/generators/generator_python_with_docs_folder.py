@@ -15,14 +15,14 @@ class Generator(AbstractGenerator):
             return False
 
         # Assume we have some docs if 'docs' folder exists
-        if not os.path.isdir(f"/app/data/docs/generating/{folder_name}/docs"):
+        if not os.path.isdir(f"{folder_name}/docs"):
             return False
 
         return True
 
     async def generate(self, folder_name: str) -> str:
         curr_cwd = os.getcwd()
-        os.chdir(f"/app/data/docs/generating/{folder_name}/docs")
+        os.chdir(f"{folder_name}/docs")
 
         project_name = "project_name_test"
         author = "Victor Näslund"
