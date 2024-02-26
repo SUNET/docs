@@ -22,6 +22,6 @@ def clone_url(url: str) -> str:
 async def preprocessing(post_data: Dict[str, Any]) -> tuple[str, CodeLanguage | None]:
     # url = "https://github.com/SUNET/python_x509_pkcs11.git"
     loop = asyncio.get_running_loop()
-    folder_name = await loop.run_in_executor(None, clone_url, post_data["clone_url"])
+    folder_name = await loop.run_in_executor(None, clone_url, post_data["hook"]["clone_url"])
     language = await detect_language(folder_name)
     return folder_name, language

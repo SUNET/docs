@@ -22,6 +22,9 @@ async def post_generator(req: Request) -> JSONResponse:
     print(f"Received new generate request", flush=True)
     post_data = await req.json()  # Check for valid data
 
+    import json
+    print(json.dumps(post_data))
+
     # Preprocess (clone down, detect language) the project
     folder_name, language = await preprocessing(post_data)
 
