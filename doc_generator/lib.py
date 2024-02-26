@@ -19,7 +19,7 @@ def clone_url(url: str) -> tuple[str, str]:
     folder_path = base64.b64encode((token_bytes(16))).hex()
     repo = Repo.clone_from(url, f"/app/data/docs/generating/{folder_path}")
     commit = repo.commit().hexsha
-    return folder_path, commit
+    return f"/app/data/docs/generating/{folder_path}", commit
 
 
 async def preprocessing(post_data: Dict[str, Any]) -> tuple[str, str, str, CodeLanguage | None]:
