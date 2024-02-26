@@ -5,7 +5,7 @@ from doc_generator.base import AbstractGenerator, CodeLanguage
 
 
 class Generator(AbstractGenerator):
-    generator_name = "generator_python_with_docs_folder2"  # Your generator name
+    generator_name = "generator_python_with_docs_folder"  # Your generator name
     generator_language = CodeLanguage.PYTHON  # Your project's language
     generator_priority: int = 99  # Between 0 - 99, lowest is higest priority
 
@@ -15,14 +15,14 @@ class Generator(AbstractGenerator):
             return False
 
         # Assume we have some docs if 'docs' folder exists
-        if not os.path.isdir(f"/app/pages/generating/{folder_name}/docs"):
+        if not os.path.isdir(f"/app/data/docs/generating/{folder_name}/docs"):
             return False
 
         return True
 
     async def generate(self, folder_name: str) -> str:
         curr_cwd = os.getcwd()
-        os.chdir(f"/app/pages/generating/{folder_name}/docs")
+        os.chdir(f"/app/data/docs/generating/{folder_name}/docs")
 
         project_name = "project_name_test"
         author = "Victor Näslund"

@@ -28,7 +28,7 @@ services:
     # cpus: "1.75"
     # user: 1000:1000
     volumes:
-      - ./data/pages:/app/pages
+      - ./data/docs:/app/data/docs
     tmpfs:
       - /dev/shm:ro,noexec,nosuid,nodev
     environment:
