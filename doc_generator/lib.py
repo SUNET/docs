@@ -41,6 +41,7 @@ async def postprocessing(repo_dir: str, docs_dir: str, repo_name: str, commit: s
     and delete the repo folder.
     """
 
+    os.makedirs(f"/app/data/docs/final/{repo_name}/", exist_ok=True)
     os.rename(docs_dir, f"/app/data/docs/final/{repo_name}/{commit}")
     shutil.rmtree(repo_dir)
 
