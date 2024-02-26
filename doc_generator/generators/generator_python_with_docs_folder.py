@@ -5,7 +5,7 @@ from doc_generator.base import AbstractGenerator, CodeLanguage
 
 
 class Generator(AbstractGenerator):
-    generator_name = "generator_python_with_docs_folder"  # Your generator name
+    generator_name = "generator_python_with_docs_folder2"  # Your generator name
     generator_language = CodeLanguage.PYTHON  # Your project's language
     generator_priority: int = 99  # Between 0 - 99, lowest is higest priority
 

@@ -7,7 +7,8 @@ from .base import AbstractGenerator
 
 
 # Load all python files in "generators" folder they must all have a class which implements AbstractGenerator
-def generators() -> List[AbstractGenerator]:
+# FIXME validate the python file and Generator class.
+def load_generators() -> List[AbstractGenerator]:
     objects: List[AbstractGenerator] = []
 
     for filename in glob.iglob("doc_generator/generators/**/*.py", recursive=True):
@@ -31,5 +32,8 @@ def generators() -> List[AbstractGenerator]:
         new_obj = obj(obj.generator_name, obj.generator_language, obj.generator_priority)
         objects.append(new_obj)
         print(f"loaded generator {obj.generator_name} from {filename}")
+
+    # Sort on priority
+    objects = sorted(objects, key=lambda obj: obj.generator_priority)
 
     return objects

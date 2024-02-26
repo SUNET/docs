@@ -36,8 +36,3 @@ class AbstractGenerator(ABC):
     @abstractmethod
     async def generate(self, folder_name: str) -> str:
         """fixme"""
-
-
-# FIXME check code language in repo
-# async def detect_language(folder_name: str) -> CodeLanguage:
-#    return CodeLanguage.PYTHON
