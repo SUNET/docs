@@ -73,7 +73,5 @@ COPY ./containers/logging.json /app/logging.json
 # HEALTHCHECK --interval=120s --timeout=15s --retries=1 --start-period=30s \
 #     CMD sh -c '. .venv/bin/activate && python3 healthcheck.py' || bash -c 'kill -s 15 1 && (sleep 7; kill -s 9 1)'
 
-# CMD sh -c '. .venv/bin/activate && uvicorn src.pkcs11_ca_service.main:app --ssl-keyfile tls_key.key --ssl-certfile tls_certificate.pem --ssl-version 2 --log-config ./logging.json --host 0.0.0.0 --port 443 --workers 1 --header server:pkcs11_ca'
-
-CMD sh -c '. .venv/bin/activate && uvicorn doc_generator.main:app --ssl-keyfile tls_key.key --ssl-certfile tls_certificate.pem --ssl-version 2 --log-config ./logging.json --host 0.0.0.0 --port 443 --workers 1 --header server:pkcs11_ca'
-CMD sh -c '. .venv/bin/activate && uvicorn doc_generator.main:app --log-config ./logging.json --host 0.0.0.0 --port 8080 --workers 1'
+# CMD sh -c '. .venv/bin/activate && uvicorn doc_generator.main:app --ssl-keyfile tls_key.key --ssl-certfile tls_certificate.pem --ssl-version 2 --log-config ./logging.json --host 0.0.0.0 --port 443 --workers 2'
+CMD sh -c '. .venv/bin/activate && uvicorn doc_generator.main:app --log-config ./logging.json --host 0.0.0.0 --port 8080 --workers 2'

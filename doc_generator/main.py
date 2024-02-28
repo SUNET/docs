@@ -1,6 +1,7 @@
 """Main module, FastAPI runs from here"""
 
 import json
+import os
 from typing import List
 
 from fastapi import FastAPI, HTTPException, Request, Response
@@ -30,6 +31,11 @@ async def post_generator(req: Request) -> JSONResponse:
     # Preprocess (clone down, detect language) the project
     repo_dir, repo_name, commit, language = await preprocessing(post_data)
 
+    # If docs for this commit already has been generated
+    if os.path.isdir(f"/app/data/docs/final/{repo_name}/{commit}"):
+        print("Docs for this commit already exists")
+        return JSONResponse(status_code=200, content=f"Docs for this commit already exists")
+
     # Try to find a compatable generator and generate with it
     for generator in doc_generators:
         if await generator.compatable(repo_dir, language):
@@ -42,6 +48,6 @@ async def post_generator(req: Request) -> JSONResponse:
         return JSONResponse(status_code=500, content=f"Failed to find compatable generator for project")
 
     # Generated docs. Time to postprocess
-    await postprocessing(repo_dir, generated_docs_dir, repo_name, commit)
+    finalized_docs_folder = await postprocessing(repo_dir, generated_docs_dir, repo_name, commit)
 
-    return JSONResponse(status_code=200, content=f"Generated docs folder {generated_docs_dir}")
+    return JSONResponse(status_code=200, content=f"Generated docs folder {finalized_docs_folder}")
