@@ -9,7 +9,8 @@ docker compose build && docker compose up
 # Demo functionality
 
 ```bash
-curl -vk -X POST localhost:8080/test1
+# Can be any repo you want. Post data is the same as githubs webhook feature
+curl -vk -X POST localhost:8080/git_repo -H 'content-type: application/json' -d '{"repository": {"name": "docs", "clone_url": "https://github.com/SUNET/docs.git"}}'
 ```
 view at
 

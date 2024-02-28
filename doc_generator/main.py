@@ -19,7 +19,7 @@ print(f"Loaded {len(doc_generators)} generators", flush=True)
 app = FastAPI()
 
 
-@app.post("/test1")
+@app.post("/git_repo")
 async def post_generator(req: Request) -> JSONResponse:
     print(f"Received new generate request", flush=True)
     post_data = await req.json()  # Check for valid data
@@ -50,4 +50,4 @@ async def post_generator(req: Request) -> JSONResponse:
     # Generated docs. Time to postprocess
     finalized_docs_folder = await postprocessing(repo_dir, generated_docs_dir, repo_name, commit)
 
-    return JSONResponse(status_code=200, content=f"Generated docs folder {finalized_docs_folder}")
+    return JSONResponse(status_code=201, content=f"Generated docs folder {finalized_docs_folder}")
