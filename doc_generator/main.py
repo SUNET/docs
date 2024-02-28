@@ -2,6 +2,7 @@
 
 import json
 import os
+import shutil
 from typing import List
 
 from fastapi import FastAPI, HTTPException, Request, Response
@@ -26,7 +27,7 @@ async def post_generator(req: Request) -> JSONResponse:
     # print(json.dumps(post_data))
 
     if "repository" not in post_data or "clone_url" not in post_data["repository"]:
-        return JSONResponse(status_code=200, content=f"Nothing to do, no 'clone_url' in post data")
+        return JSONResponse(status_code=200, content=f'Nothing to do, no \'"repository"["clone_url"]\' in post data')
 
     # Preprocess (clone down, detect language) the project
     repo_dir, repo_name, commit, language = await preprocessing(post_data)
@@ -34,6 +35,7 @@ async def post_generator(req: Request) -> JSONResponse:
     # If docs for this commit already has been generated
     if os.path.isdir(f"/app/data/docs/final/{repo_name}/{commit}"):
         print("Docs for this commit already exists")
+        shutil.rmtree(repo_dir)  # Remove cloned down repo
         return JSONResponse(status_code=200, content=f"Docs for this commit already exists")
 
     # Try to find a compatable generator and generate with it
@@ -45,7 +47,7 @@ async def post_generator(req: Request) -> JSONResponse:
             break
     else:
         print("Failed to find compatable generator")
-        return JSONResponse(status_code=500, content=f"Failed to find compatable generator for project")
+        return JSONResponse(status_code=200, content=f"Failed to find compatable generator for project")
 
     # Generated docs. Time to postprocess
     finalized_docs_folder = await postprocessing(repo_dir, generated_docs_dir, repo_name, commit)

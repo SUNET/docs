@@ -6,7 +6,7 @@ from typing import List
 from .base import AbstractGenerator
 
 
-# Load all python files in "generators" folder they must all have a class which implements AbstractGenerator
+# Load all python files in "generators" folder they must all have a class called 'Generator' which implements AbstractGenerator
 # FIXME validate the python file and Generator class.
 def load_generators() -> List[AbstractGenerator]:
     objects: List[AbstractGenerator] = []
@@ -28,10 +28,12 @@ def load_generators() -> List[AbstractGenerator]:
 
         module_spec.loader.exec_module(module)
 
-        obj = getattr(module, "Generator")
-        new_obj = obj(obj.generator_name, obj.generator_language, obj.generator_priority)
-        objects.append(new_obj)
-        print(f"loaded generator {obj.generator_name} from {filename}")
+        generator_class = getattr(module, "Generator")
+        class_object: AbstractGenerator = generator_class(
+            generator_class.generator_name, generator_class.generator_language, generator_class.generator_priority
+        )
+        objects.append(class_object)
+        print(f"loaded generator {class_object.name()} from {filename}")
 
     # Sort on priority
     objects = sorted(objects, key=lambda obj: obj.generator_priority)
