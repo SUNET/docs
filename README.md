@@ -9,8 +9,9 @@ docker compose build && docker compose up
 # Demo functionality
 
 ```bash
-# Can be any repo you want. Post data is the same as githubs webhook feature
-curl -vk -X POST localhost:8080/git_repo -H 'content-type: application/json' -d '{"repository": {"name": "docs", "clone_url": "https://github.com/SUNET/docs.git"}}'
+# Can be any repo you want. Post data is the same dict format as githubs webhook feature
+curl -vk -X POST localhost:8080/git_repo -H 'content-type: application/json' \
+-d '{"repository": {"name": "pyff", "clone_url": "https://github.com/IdentityPython/pyFF.git"}}'
 ```
 view at
 
@@ -33,11 +34,21 @@ class Generator(AbstractGenerator):
     generator_language = CodeLanguage.PYTHON # Your project's language
     generator_priority: int = 10 # Between 0 - 99, lowest is higest priority
 
-    async def compatable(self, folder_name: str, language: CodeLanguage | None) -> bool:
+    async def compatable(self, venv_path: str, folder_name: str, project_name: str, language: CodeLanguage | None) -> bool:
+        """Check if a folder containing a project is compatable with this doc generator.
+        See self.generate()
+
+        Parameters:
+        venv_path str: Path to python venv folder.
+        folder_name str: Path to the cloned down project folder.
+        project_name str: Name of the project.
+        language CodeLanguage: The code language.
+
+        Returns:
+        bool
         """
-        Code to check if the repo is compatable with your doc generator
-        Path to your git cloned project are {folder_name}
-        """
+
+        # Example code below
 
         if language is not None and self.language() != language:
             return False
@@ -48,10 +59,26 @@ class Generator(AbstractGenerator):
 
         return True
 
-    async def generate(self, folder_name: str) -> str:
+    async def generate(self, venv_path: str, folder_name: str, project_name: str, language: CodeLanguage | None) -> str:
+        """Generate docs from a folder containing a project with this method
+        Returned str is path to the generated docs folder, usually containing the index.html.
+
+        Parameters:
+        venv_path str: Path to python venv folder.
+        folder_name str: Path to the cloned down project folder.
+        project_name str: Name of the project.
+        language CodeLanguage: The code language.
+
+        Returns:
+        str
         """
-        Your code to generate sphinx docs for a project with your layout here
-        Path to your git cloned project are {folder_name}
-        return the folder path to the sphinx generated html folder, usually where the generated index.html file is
-        """
+
+        # Your code here...
+```
+
+# Contribute / for developers
+
+```bash
+mypy --strict --namespace-packages --cache-dir=/dev/null --namespace-packages doc_generator/ \
+&& isort --line-length 120 doc_generator/ && black -l 120 doc_generator/ && pylint --max-line-length 120 doc_generator/*
 ```

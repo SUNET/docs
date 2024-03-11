@@ -1,15 +1,23 @@
+"""Module for startup functions"""
+
 import glob
 import sys
 from importlib.util import module_from_spec, spec_from_file_location
-from typing import List
 
 from .base import AbstractGenerator
 
 
-# Load all python files in "generators" folder they must all have a class called 'Generator' which implements AbstractGenerator
-# FIXME validate the python file and Generator class.
-def load_generators() -> List[AbstractGenerator]:
-    objects: List[AbstractGenerator] = []
+def load_generators() -> list[AbstractGenerator]:
+    """Load doc generators from all python files in the generators folder
+    they must all have a class called 'Generator' which implements AbstractGenerator
+    FIXME validate the python file and Generator class.
+
+    Returns:
+    list[AbstractGenerator]
+
+    """
+
+    objects: list[AbstractGenerator] = []
 
     for filename in glob.iglob("doc_generator/generators/**/*.py", recursive=True):
         modulename = filename[:-3].split("/")[-1]

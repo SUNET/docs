@@ -1,4 +1,4 @@
-FROM debian:bookworm-20231120-slim@sha256:93ff361288a7c365614a5791efa3633ce4224542afb6b53a1790330a8e52fc7d
+FROM debian:bookworm-20240211-slim@sha256:6bdbd579ba71f6855deecf57e64524921aed6b97ff1e5195436f244d2cb42b12
 
 MAINTAINER victor@sunet.se
 
@@ -22,6 +22,7 @@ RUN apt-get update \
     python3 \
     build-essential \
     zip \
+    plantuml \
     git \
     curl \
     wget \

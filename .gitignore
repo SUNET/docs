@@ -1,0 +1,12 @@
+dist
+venv
+docs/build
+docs/source/_build/
+data/trusted_keys
+data
+.idea
+*.mypy_cache
+*__pycache__
+*.key
+.#*
+*~
