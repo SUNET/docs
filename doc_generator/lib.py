@@ -93,15 +93,16 @@ async def preprocessing(post_data: Dict[str, Any]) -> tuple[str, str, str, str, 
 
     # url = "https://github.com/SUNET/python_x509_pkcs11.git"
     loop = asyncio.get_running_loop()
-    project_name = "fixme"
+    project_name = post_data["repository"]["clone_url"].split("/")[-1].split(".git")[0]
     post_data_commit = None
 
     # Better handling of types
-    project_name_data = post_data["repository"].get("name", "FIXME")
+    project_name_data = post_data["repository"]
     if isinstance(project_name_data, str):
         project_name = project_name_data
+
     if "head_commit" in post_data:
-        commit_data = post_data["head_commit"].get("id", "FIXME")
+        commit_data = post_data["head_commit"]
         if isinstance(commit_data, str):
             post_data_commit = commit_data
 
@@ -150,7 +151,7 @@ async def postprocessing(venv_path: str, repo_dir: str, docs_dir: str, project_n
 
     # Remove old generate docs for this commit, will be replaced here below.
     if os.path.isdir(f"/app/data/docs/final/{project_name}/{commit}"):
-        shutil.rmtree("/app/data/docs/final/{project_name}/{commit}")
+        shutil.rmtree(f"/app/data/docs/final/{project_name}/{commit}")
 
     os.rename(docs_dir, f"/app/data/docs/final/{project_name}/{commit}")
     shutil.rmtree(repo_dir)  # remove cloned down repo

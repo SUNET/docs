@@ -1,9 +1,8 @@
 """Module that has the generator for python porjects with a docs folder"""
 
 import os
+import shutil
 import subprocess
-
-from fastapi import HTTPException
 
 from doc_generator.base import AbstractGenerator, CodeLanguage
 
@@ -25,11 +24,12 @@ class Generator(AbstractGenerator):
             return False
 
         # Assume we have some docs if 'docs' folder exists
-        for folder in doc_folders:
-            if os.path.isdir(f"{folder_name}/{folder}"):
-                return True
+        # for folder in doc_folders:
+        #     if os.path.isdir(f"{folder_name}/{folder}"):
+        #        return True
 
-        return False
+        return True
+        # return False
 
     async def generate(self, venv_path: str, folder_name: str, project_name: str, language: CodeLanguage | None) -> str:
         # Find documentation folder
@@ -68,12 +68,13 @@ class Generator(AbstractGenerator):
 
         if os.path.isdir(f"{folder_name}/{docs_folder}/_build/html"):
             return f"{folder_name}/{docs_folder}/_build/html"
-
+        if os.path.isdir(f"{folder_name}/{docs_folder}/build/html"):
+            return f"{folder_name}/{docs_folder}/build/html"
         return f"{folder_name}/{docs_folder}"
 
     async def docs_folder(self, folder_name: str) -> str:
-        """Find docs folder in project repo.
-        Returned str is docs folder name or raise HTTPException
+        """Find docs folder in project repo. Create default readme if no docs folder exists
+        Returned str is docs folder name
 
         Parameters:
         folder_name str: The path to the cloned down project.
@@ -87,7 +88,22 @@ class Generator(AbstractGenerator):
                 print(f"found docs folder {folder}")
                 return folder
 
-        raise HTTPException(200, detail="ERROR: Could not find a documentation folder")
+        os.makedirs(f"{folder_name}/docs/", exist_ok=True)
+
+        for readme in ["README.md", "readme.md", "README", "readme"]:
+            if os.path.isfile(f"{folder_name}/{readme}"):
+                shutil.copy(f"{folder_name}/{readme}", f"{folder_name}/docs/{readme}")
+                break
+        else:
+            with open(f"{folder_name}/docs/README.md", "w", encoding="utf-8") as readme_file:
+                readme_file.write(
+                    """
+# Default template for docs here
+
+Please write proper documentation in the project root 'docs' folder
+"""
+                )
+        return "docs"
 
     async def pip_install(self, venv_path: str, path: str) -> None:
         """Install python libs or projects from requirements file or folder path.
@@ -168,6 +184,10 @@ class Generator(AbstractGenerator):
             await self.pip_install(venv_path, f"{folder_name}/{docs_folder}/requirements.in")
             print(f"Installed doc libs from {folder_name}/{docs_folder}/requirements.in", flush=True)
 
+        elif os.path.isfile(f"{folder_name}/requirements-docs.txt"):
+            await self.pip_install(venv_path, f"{folder_name}/requirements-docs.txt")
+            print(f"Installed doc libs from {folder_name}/requirements-docs.txt", flush=True)
+
     async def create_default_sphinx_config(
         self, venv_path: str, folder_name: str, docs_folder: str, project_name: str
     ) -> None:
@@ -202,14 +222,40 @@ class Generator(AbstractGenerator):
         with open("conf.py", "w", encoding="utf-8") as conf_file:
             conf_file.write(conf_file_data)
 
-        # FIXME do for all doc files in dir not just README
-        if os.path.isfile("README.md") or os.path.isfile(path="README.rst"):
-            with open("index.rst", encoding="utf-8") as index_file:
-                index_file_data = index_file.read()
+        # FIXME: check files files exists, dont assume only README.md exists
+        index_file_data_replace = ""
 
-            index_file_data = index_file_data.replace(":caption: Contents:", INDEX_FILE_DATA_REPLACE)
-            with open("index.rst", "w", encoding="utf-8") as index_file:
-                index_file.write(index_file_data)
+        # Fix README or readme
+        if os.path.isfile("README"):
+            os.rename("README", "README.md")
+        if os.path.isfile("readme"):
+            os.rename("readme", "readme.md")
+
+        # FIXME handle recursive folders
+        for doc_file in os.listdir("."):
+            if doc_file.endswith(".rst") or doc_file.endswith(".txt"):
+                if doc_file != "index.rst" and os.path.isfile(doc_file):
+                    index_file_data_replace = "   " + index_file_data_replace + doc_file[:-4] + "\n"
+
+        for doc_file in os.listdir("."):
+            if doc_file.endswith(".md"):
+                if os.path.isfile(doc_file):
+                    index_file_data_replace = "   " + index_file_data_replace + doc_file[:-3] + "\n"
+
+        with open("index.rst", "a", encoding="utf-8") as index_file:
+            index_file.write(
+                """
+
+
+Contents
+========
+
+.. toctree::
+
+
+"""
+            )
+            index_file.write(index_file_data_replace)
 
         os.chdir(f"{old_cwd}")
 
@@ -228,10 +274,4 @@ import sys
 sys.path.insert(0, os.path.abspath('..'))
 
 
-"""
-
-# FIXME: check files files exists, dont assume only README.md exists
-INDEX_FILE_DATA_REPLACE = """:caption: Contents:
-
-   README
 """

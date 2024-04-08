@@ -17,7 +17,7 @@ def load_generators() -> list[AbstractGenerator]:
 
     """
 
-    objects: list[AbstractGenerator] = []
+    generators: list[AbstractGenerator] = []
 
     for filename in glob.iglob("doc_generator/generators/**/*.py", recursive=True):
         modulename = filename[:-3].split("/")[-1]
@@ -40,10 +40,10 @@ def load_generators() -> list[AbstractGenerator]:
         class_object: AbstractGenerator = generator_class(
             generator_class.generator_name, generator_class.generator_language, generator_class.generator_priority
         )
-        objects.append(class_object)
+        generators.append(class_object)
         print(f"loaded generator {class_object.name()} from {filename}")
 
     # Sort on priority
-    objects = sorted(objects, key=lambda obj: obj.generator_priority)
+    objects = sorted(generators, key=lambda obj: obj.generator_priority)
 
     return objects

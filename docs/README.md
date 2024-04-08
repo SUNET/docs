@@ -42,7 +42,7 @@ class Generator(AbstractGenerator):
         venv_path str: Path to python venv folder.
         folder_name str: Path to the cloned down project folder.
         project_name str: Name of the project.
-        language CodeLanguage: The code language.
+        language CodeLanguage | None: The code language.
 
         Returns:
         bool
@@ -67,7 +67,7 @@ class Generator(AbstractGenerator):
         venv_path str: Path to python venv folder.
         folder_name str: Path to the cloned down project folder.
         project_name str: Name of the project.
-        language CodeLanguage: The code language.
+        language CodeLanguage | None: The code language.
 
         Returns:
         str
@@ -81,4 +81,78 @@ class Generator(AbstractGenerator):
 ```bash
 mypy --strict --namespace-packages --cache-dir=/dev/null --namespace-packages doc_generator/ \
 && isort --line-length 120 doc_generator/ && black -l 120 doc_generator/ && pylint --max-line-length 120 doc_generator/*
+```
+
+# Add all your repos to the docs system
+
+Example code to add all your projects into the docs system.
+
+```bash
+client8 @ fedora ~/git/docs > cat download.sh
+curl -L \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer " [YOUR_GITHUB_PAT_HERE]\
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  'https://api.github.com/orgs/[MY_ORG_2]/repos?per_page=100&page=1' > 1_1
+
+
+curl -L \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer " [YOUR_GITHUB_PAT_HERE]\
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  'https://api.github.com/orgs/[MY_ORG_1]/repos?per_page=100&page=1' > 1
+
+curl -L \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer " [YOUR_GITHUB_PAT_HERE]\
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  'https://api.github.com/orgs/[MY_ORG_1]/repos?per_page=100&page=2' > 2
+
+curl -L \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer " [YOUR_GITHUB_PAT_HERE]\
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  'https://api.github.com/orgs/[MY_ORG_1]/repos?per_page=100&page=3' > 3
+
+curl -L \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer " [YOUR_GITHUB_PAT_HERE]\
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  'https://api.github.com/orgs/[MY_ORG_1]/repos?per_page=100&page=4' > 4
+
+curl -L \
+  -H "Accept: application/vnd.github+json" \
+  -H "Authorization: Bearer " [YOUR_GITHUB_PAT_HERE]\
+  -H "X-GitHub-Api-Version: 2022-11-28" \
+  'https://api.github.com/orgs/[MY_ORG_1]/repos?per_page=100&page=5' > 5
+
+```
+
+```python
+
+import json
+import subprocess
+import requests
+
+urls: list[str] = []
+
+for x in range(1,6):
+    with open(f"{x}") as json_file:
+        repos = json.load(json_file)
+        for y in repos:
+            if "language" in y and y["language"] == "Python":
+                urls.append(y["clone_url"])
+
+for x in range(1,2):
+    with open(f"{x}_1") as json_file:
+        repos = json.load(json_file)
+        for y in repos:
+            if "language" in y and y["language"] == "Python":
+                urls.append(y["clone_url"])
+
+
+for x in urls:
+    print(f"running for {x}")
+    requests.post("http://localhost:8080/git_repo", json={"repository": {"clone_url": x}})
+
 ```

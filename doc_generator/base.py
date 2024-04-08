@@ -62,7 +62,7 @@ class AbstractGenerator(ABC):
         venv_path str: Path to python venv folder.
         folder_name str: Path to the cloned down project folder.
         project_name str: Name of the project.
-        language CodeLanguage: The code language.
+        language CodeLanguage | None: The code language.
 
         Returns:
         bool
@@ -77,7 +77,7 @@ class AbstractGenerator(ABC):
         venv_path str: Path to python venv folder.
         folder_name str: Path to the cloned down project folder.
         project_name str: Name of the project.
-        language CodeLanguage: The code language.
+        language CodeLanguage | None: The code language.
 
         Returns:
         str
