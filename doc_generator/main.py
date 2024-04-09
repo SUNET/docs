@@ -5,6 +5,7 @@ import os
 import secrets
 import shutil
 import random
+import subprocess
 
 import motor.motor_asyncio
 import requests
@@ -78,6 +79,8 @@ async def background_update_projects() -> None:
         cursor = collection.find()
 
         projects = await cursor.to_list(length=5000)
+
+        random.seed(os.getpgid())
         random.shuffle(projects)
 
         for doc in projects:
@@ -92,16 +95,21 @@ async def background_update_projects() -> None:
                 shutil.rmtree(repo_dir)  # Remove cloned down repo
                 continue
 
-            # Try to find a compatable generator and generate with it
-            for generator in doc_generators:
-                if await generator.compatable(venv_path, repo_dir, project_name, language):
-                    # Use the compatable generator to generate docs
-                    print(f"Using generator {generator.name()}", flush=True)
-                    generated_docs_dir = await generator.generate(venv_path, repo_dir, project_name, language)
-                    break
-            else:
-                print("Failed to find compatable generator", flush=True)
+            try:
+                # Try to find a compatable generator and generate with it
+                for generator in doc_generators:
+                    if await generator.compatable(venv_path, repo_dir, project_name, language):
+                        # Use the compatable generator to generate docs
+                        print(f"Using generator {generator.name()}", flush=True)
+                        generated_docs_dir = await generator.generate(venv_path, repo_dir, project_name, language)
+                        break
+                else:
+                    print("Failed to find compatable generator", flush=True)
+                    continue
+            except subprocess.CalledProcessError:
+                print(f"Failed to generate project {project_name}", flush=True)
                 continue
+
 
             # Generated docs. Time to postprocess
             await postprocessing(venv_path, repo_dir, generated_docs_dir, project_name, commit)
@@ -148,16 +156,20 @@ async def post_generator(req: Request) -> JSONResponse:
         shutil.rmtree(repo_dir)  # Remove cloned down repo
         return JSONResponse(status_code=200, content="Docs for this commit already exists")
 
-    # Try to find a compatable generator and generate with it
-    for generator in doc_generators:
-        if await generator.compatable(venv_path, repo_dir, project_name, language):
-            # Use the compatable generator to generate docs
-            print(f"Using generator {generator.name()}", flush=True)
-            generated_docs_dir = await generator.generate(venv_path, repo_dir, project_name, language)
-            break
-    else:
-        print("Failed to find compatable generator")
-        return JSONResponse(status_code=200, content="Failed to find compatable generator for project")
+    try:
+        # Try to find a compatable generator and generate with it
+        for generator in doc_generators:
+            if await generator.compatable(venv_path, repo_dir, project_name, language):
+                # Use the compatable generator to generate docs
+                print(f"Using generator {generator.name()}", flush=True)
+                generated_docs_dir = await generator.generate(venv_path, repo_dir, project_name, language)
+                break
+        else:
+            print("Failed to find compatable generator")
+            return JSONResponse(status_code=200, content="Failed to find compatable generator for project")
+
+    except subprocess.CalledProcessError:
+        return JSONResponse(status_code=200, content="Failed to find generate project")
 
     # Generated docs. Time to postprocess
     finalized_docs_folder = await postprocessing(venv_path, repo_dir, generated_docs_dir, project_name, commit)
