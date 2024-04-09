@@ -6,6 +6,11 @@
 docker compose build && docker compose up
 ```
 
+# Update config variables in docs_generator/conf.py
+This is for autodiscover new projects to generate docs for.
+The demo functionality below will still work without this.
+
+
 # Demo functionality
 
 ```bash

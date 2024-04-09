@@ -6,10 +6,12 @@ import secrets
 import shutil
 
 import motor.motor_asyncio
+import requests
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from .base import AbstractGenerator
+from .conf import GITHUB_PAT, orgs
 from .lib import postprocessing, preprocessing
 from .startup import load_generators
 
@@ -22,7 +24,45 @@ print(f"Loaded {len(doc_generators)} generators", flush=True)
 app = FastAPI()
 
 
-async def background_runner() -> None:
+async def background_discover_projects() -> None:
+    """Discover new projects in the background"""
+
+    # FIXME automaticly find out number of repos in org
+
+    mongodb_client = motor.motor_asyncio.AsyncIOMotorClient("mongodb", 27017)
+    db = mongodb_client["docs"]
+    collection = db["projects"]
+
+    while True:
+        for org in orgs:
+            for page in range(1, orgs[org] + 1):
+                await asyncio.sleep(0)
+                headers = {
+                    "Accept": "application/vnd.github+json",
+                    "Authorization": GITHUB_PAT,
+                    "X-GitHub-Api-Version": "2022-11-28",
+                }
+                req = requests.get(
+                    f"https://api.github.com/orgs/{org}/repos?per_page=100&page={page}", headers=headers, timeout=10
+                )
+
+                repos = req.json()
+                for repo in repos:
+                    if "language" in repo and repo["language"] == "Python":
+                        old_document = await collection.find_one({"clone_url": repo["clone_url"]})
+                        if old_document is None:
+                            await collection.insert_one(
+                                {"name": repo["name"], "clone_url": repo["clone_url"], "language": "python"}
+                            )
+                            print(
+                                f"Discovered and inserted project {repo['name']} into db page {page} org {org}",
+                                flush=True,
+                            )
+
+        await asyncio.sleep(60 * 60 * 24)  # 60*60*24 for 24 hours
+
+
+async def background_update_projects() -> None:
     """Process all projects in database continuously in the background"""
 
     while True:
@@ -77,7 +117,8 @@ async def background_runner() -> None:
 @app.on_event("startup")
 async def app_startup() -> None:
     """Create our background process"""
-    asyncio.create_task(background_runner())
+    asyncio.create_task(background_update_projects())
+    asyncio.create_task(background_discover_projects())
 
 
 @app.post("/git_repo")
