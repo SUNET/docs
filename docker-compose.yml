@@ -51,7 +51,7 @@ services:
     # mem_reservation: "128m"
     # cpus: "1.75"
     volumes:
-      - ./data/mongodb:/data
+      - ./data/mongodb:/data/db
      # FIXME mongodb security
 #    environment:
 #      - POSTGRES_DB=${POSTGRES_DATABASE}
