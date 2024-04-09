@@ -4,6 +4,7 @@ import asyncio
 import os
 import secrets
 import shutil
+import random
 
 import motor.motor_asyncio
 import requests
@@ -76,10 +77,10 @@ async def background_update_projects() -> None:
 
         cursor = collection.find()
 
-        for doc in await cursor.to_list(length=5000):
-            # Wait for ~30 seconds before processing next project.
-            await asyncio.sleep(secrets.randbelow(60))
+        projects = await cursor.to_list(length=5000)
+        random.shuffle(projects)
 
+        for doc in projects:
             print(f"background running for {doc['name']}", flush=True)
 
             post_data = {"repository": {"name": doc["name"], "clone_url": doc["clone_url"]}}
